@@ -1,18 +1,13 @@
-import { useId } from 'react'
-
-interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'className' | 'id'> {
+interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'className'> {
   dataSet: (string | number)[]
   label: string
 }
 
 export const Select = ({ dataSet, label, ...attributes }: SelectProps) => {
-  const selectId = useId()
   return (
-    <>
-      <label htmlFor={selectId} className="capitalize block font-medium text-gray-700">
-        {label}
-      </label>
-      <select className="w-full border-2 rounded capitalize" id={selectId} {...attributes}>
+    <label className="capitalize block font-medium text-gray-700 w-full">
+      <span className="block"> {label}</span>
+      <select className="w-full px-2 py-1 border-2 rounded capitalize" {...attributes}>
         {!attributes.defaultValue && <option value=""></option>}
         {dataSet.map((value, index) => (
           <option key={index} value={value}>
@@ -20,6 +15,6 @@ export const Select = ({ dataSet, label, ...attributes }: SelectProps) => {
           </option>
         ))}
       </select>
-    </>
+    </label>
   )
 }
