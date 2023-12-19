@@ -3,7 +3,7 @@ import { applyTodoFilters, getTodoListWithUsernames, sortTasks } from '@/service
 import { useEffect, useState } from 'react'
 
 import { FilterPanel } from './FilterPanel'
-import Pagination from './Pagination'
+import { Pagination } from '@/components'
 import { paginateData } from '@/utils'
 
 const ITEMS_PER_PAGE = 15
@@ -32,8 +32,6 @@ export const TodoTable = () => {
     .sort((a, b) => sortTasks(a, b, filters))
 
   const paginatedTodoList = paginateData(filteredTodoList, currentPage, ITEMS_PER_PAGE)
-  console.log('filteredTodoList', { filteredTodoList })
-  console.log('paginatedTodoList', { paginatedTodoList })
 
   const totalPages = Math.ceil((filteredTodoList?.length || 0) / ITEMS_PER_PAGE)
 
