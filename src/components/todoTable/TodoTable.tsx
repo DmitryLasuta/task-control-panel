@@ -1,20 +1,19 @@
+import type { Filters, TodoWithUser } from '@/types'
 import { applyTodoFilters, getTodoListWithUsernames, sortTasks } from '@/services'
+import { useEffect, useState } from 'react'
 
 import { FilterPanel } from './FilterPanel'
-import type { Filters } from '@/types'
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import Pagination from './Pagination'
+import { paginateData } from '@/utils'
+
+const ITEMS_PER_PAGE = 15
 
 export const TodoTable = () => {
-  const {
-    data: todoList,
-    isLoading,
-    isSuccess,
-    isError,
-  } = useQuery({
-    queryKey: ['todoList'],
-    queryFn: getTodoListWithUsernames,
-  })
+  const [todoList, setTodoList] = useState<TodoWithUser[]>([])
+
+  useEffect(() => {
+    getTodoListWithUsernames().then(setTodoList)
+  }, [])
 
   const [filters, setFilters] = useState<Filters>({
     title: '',
@@ -22,12 +21,21 @@ export const TodoTable = () => {
     sortBy: 'id',
     order: 'asc',
   })
+  const [currentPage, setCurrentPage] = useState(1)
 
-  const filteredTodoList = (isSuccess ? todoList : [])
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters])
+
+  const filteredTodoList = todoList
     .filter(todo => applyTodoFilters(todo, filters))
     .sort((a, b) => sortTasks(a, b, filters))
 
-  if (isError) return <div>failed to load</div>
+  const paginatedTodoList = paginateData(filteredTodoList, currentPage, ITEMS_PER_PAGE)
+  console.log('filteredTodoList', { filteredTodoList })
+  console.log('paginatedTodoList', { paginatedTodoList })
+
+  const totalPages = Math.ceil((filteredTodoList?.length || 0) / ITEMS_PER_PAGE)
 
   return (
     <>
@@ -43,12 +51,12 @@ export const TodoTable = () => {
             </tr>
           </thead>
           <tbody className="text-sm divide-y divide-gray-100">
-            {isLoading ? (
+            {todoList.length === 0 ? (
               <tr className="p-2">
                 <td colSpan={4}>loading</td>
               </tr>
             ) : (
-              filteredTodoList.map(({ completed, id, title, username }) => (
+              paginatedTodoList.map(({ completed, id, title, username }) => (
                 <tr key={id}>
                   <td className="p-2">{id}</td>
                   <td className="p-2">{username}</td>
@@ -60,6 +68,7 @@ export const TodoTable = () => {
           </tbody>
         </table>
       </div>
+      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
     </>
   )
 }
