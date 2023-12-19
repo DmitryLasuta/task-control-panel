@@ -3,8 +3,10 @@ import type { Todo, TodoWithUser, User } from '@/types'
 import { fetchData } from '@/utils'
 
 export const getTodoListWithUsernames = async (): Promise<TodoWithUser[]> => {
-  const todoList = await fetchData<Todo[]>('https://jsonplaceholder.typicode.com/todos')
-  const users = await fetchData<User[]>('https://jsonplaceholder.typicode.com/users')
+  const [todoList, users] = await Promise.all([
+    fetchData<Todo[]>('https://jsonplaceholder.typicode.com/todos'),
+    fetchData<User[]>('https://jsonplaceholder.typicode.com/users'),
+  ])
 
   if (todoList && users) {
     return todoList.map(todo => {
